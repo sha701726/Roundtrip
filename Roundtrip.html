@@ -1276,58 +1276,140 @@
   </div>
 
   <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script>
-    // Navbar scroll
-    window.addEventListener('scroll', () => {
-      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
-    });
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
-    // Hamburger
-    document.getElementById('hamburger').addEventListener('click', () => {
-      document.getElementById('mobileMenu').classList.toggle('open');
-    });
-    function closeMobile() { document.getElementById('mobileMenu').classList.remove('open'); }
+<script>
+  // =========================
+  // NAVBAR SCROLL EFFECT
+  // =========================
+  window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
 
-    (function () {
-      emailjs.init("aBcDeFg123456");
-    })();
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
 
-    function handleContactSubmit() {
+  // =========================
+  // MOBILE MENU
+  // =========================
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
 
-      const name = document.querySelectorAll('.cf-group input')[0].value;
-      const phone = document.querySelectorAll('.cf-group input')[1].value;
-      const route = document.querySelectorAll('.cf-group input')[2].value;
-      const date = document.querySelectorAll('.cf-group input')[3].value;
-      const message = document.querySelector('.cf-group textarea').value;
+  hamburger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+  });
 
-      const templateParams = {
-        from_name: name,
-        phone_number: phone,
-        trip_route: route,
-        travel_date: date,
-        message: message
-      };
+  function closeMobile() {
+    mobileMenu.classList.remove('open');
+  }
 
-      emailjs.send(
+  // =========================
+  // EMAILJS INIT
+  // =========================
+  (function () {
+    emailjs.init("aBcDeFg123456");
+  })();
+
+  // =========================
+  // CONTACT FORM SUBMIT
+  // =========================
+  async function handleContactSubmit() {
+
+    const submitBtn = document.querySelector('.submit-btn');
+
+    // Inputs
+    const inputs = document.querySelectorAll('.contact-form input');
+    const textarea = document.querySelector('.contact-form textarea');
+
+    const name = inputs[0].value.trim();
+    const phone = inputs[1].value.trim();
+    const route = inputs[2].value.trim();
+    const date = inputs[3].value;
+    const message = textarea.value.trim();
+
+    // =========================
+    // VALIDATION
+    // =========================
+    if (!name || !phone || !route || !date) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    // Indian phone validation
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      alert("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    // Disable button while sending
+    submitBtn.disabled = true;
+    submitBtn.innerText = "SENDING...";
+
+    const templateParams = {
+      from_name: name,
+      phone_number: phone,
+      trip_route: route,
+      travel_date: date,
+      message: message || "No message provided"
+    };
+
+    try {
+
+      await emailjs.send(
         "service_yqxbp1l",
         "template_41jsf9g",
         templateParams
-      )
-        .then(function () {
-          alert(alert('Booking request send ho gayi! Hum aapko 7017267400 se jald contact karenge.'));
-        })
-        .catch(function (error) {
-          alert("Request send nahi hui. Please dubara try karein.");
-          console.error(error);
-        });
-    }
+      );
 
-    // Scroll animations
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.15 });
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-  </script>
+      // Success
+      alert(
+        "Booking request send ho gayi! Hum aapko 7017267400 se jald contact karenge."
+      );
+
+      // Reset form
+      inputs.forEach(input => input.value = "");
+      textarea.value = "";
+
+    } catch (error) {
+
+      console.error("EmailJS Error:", error);
+
+      alert(
+        "Request send nahi hui. Please dubara try karein."
+      );
+
+    } finally {
+
+      // Enable button again
+      submitBtn.disabled = false;
+      submitBtn.innerText = "SEND BOOKING REQUEST →";
+    }
+  }
+
+  // =========================
+  // SCROLL ANIMATION
+  // =========================
+  const observer = new IntersectionObserver((entries) => {
+
+    entries.forEach(entry => {
+
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+
+    });
+
+  }, {
+    threshold: 0.15
+  });
+
+  document.querySelectorAll('.fade-up').forEach(el => {
+    observer.observe(el);
+  });
+
+</script>
 </body>
 </html>
